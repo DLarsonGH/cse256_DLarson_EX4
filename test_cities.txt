@@ -1,0 +1,12 @@
+Boise_ID
+Springfield_IL
+Indianapolis_IN
+Des#Moines_IA
+Topeka_KS
+Frankfort_KY
+Baton#Rouge_LA
+Augusta_ME
+Annapolis_MD
+Boston_MA
+Lansing_MI
+Saint#Paul_MN
