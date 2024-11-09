@@ -21,7 +21,7 @@ a letter.
 import random
 
 
-class Guess_city:
+class GuessCity:
     """
     The class supports guessing a US city name by selecting one letter at a
     time.  An object of the class is instantiated by calling the constructor
@@ -32,14 +32,14 @@ class Guess_city:
     city name is guessed, the corresponding position(s) in the guess word are
     changed from "_" to the correct character.  The guess character can also
     be a blank as some city names are two or more words in length.  Initialize
-    counters for the number guesses and a runnng count of the number of letters
+    counters for the number guesses and a running count of the number of letters
     correctly guessed.
     """
 
     def __init__(self, city_name):
         """
-        Instantiate a Guess_city object.  Store the full city name and create
-        a guess word of with the characters (except "'") replaced by "_".
+        Instantiate a GuessCity object.  Store the full city name and create
+        a guess word of with the characters (except ",") replaced by "_".
         :param city_name:
         """
         # Store the full city name as a list for convenience
@@ -72,6 +72,13 @@ class Guess_city:
                 self._num_letters_found += 1
         return match_found
 
+    def game_over(self):
+        """
+        Determine whether all the hidden characters have been identified.
+        :return: Boolean
+        """
+        return self._num_letters_found == (len(self._city_name) - 1)
+
     @property
     def city_name(self):
         """
@@ -102,27 +109,50 @@ class Guess_city:
         wide_word = []
         for i, ch in enumerate(self._city_guess):
             wide_word.append(ch)
-            if i < (len(self._city_guess)-1):
+            if i < (len(self._city_guess) - 1):
                 wide_word.append(" ")
         return "".join(wide_word)
 
 
-
+# Read in list of state capitals
 filename = "us_state_capitals.csv"
 with open(filename, "r") as file:
     capitals = [line.rstrip() for line in file]
 
-for i in range(2):
-    encoded_name = random.choice(capitals)
-    # Replace special characters
-    temp_name = encoded_name.replace("#", " ")
-    city_name = temp_name.replace("_", ",")
-    g = Guess_city(city_name)
-    print(f"Chose {g.city_name}")
-    for ch in ['a', 'e', 'c', ' ']:
-        if g.process_guess(ch):
-            print(f"Found {ch}!")
-        else:
-            print(f"Didn't find {ch}")
-    print(f"After {g.num_guesses} guesses, {g.num_letters_found} letters found.")
-    print(f"Guess the capital and state: {g.formatted_guess()}.")
+# Pick a city at random
+encoded_name = random.choice(capitals)
+# Replace special characters
+temp_name = encoded_name.replace("#", " ")
+full_name = temp_name.replace("_", ",")
+# Create guess processing object with selected state capital
+g = GuessCity(full_name)
+
+print("Guess the hidden state capital.")
+# Enter input processing loop
+while True:
+    print()
+    print(f"Guesses made: {g.num_guesses}\tLetters found: {g.num_letters_found}")
+    print(f"<<< {g.formatted_guess()} >>>")
+    ch_in = input("Pick a letter or '@' for space: ")
+    if ch_in.isalpha():
+        # A letter was entered. Process in lower case.
+        result = g.process_guess(ch_in[0].lower())
+    elif ch_in == '@':
+        # Process this as a blank.
+        result = g.process_guess(' ')
+    else:
+        # Input must be bad.  Prompt for input again.
+        print(f"'{ch_in}' is not a valid input.")
+        continue
+    # Report whether the guess was good or not.
+    if result:
+        print(f"'{ch_in}' IS in the hidden capital name.")
+        # See if entire name has now been guessed.
+        if g.game_over():
+            print(f"Congratulations, you found the correct answer: {g.city_name}!")
+            print(f"You took {g.num_guesses} guesses to fill the {(len(g.city_name) - 1)} blanks.")
+            print("Thanks for playing.")
+            break
+    else:
+        print(f"'{ch_in}' is NOT in the hidden capital name.")
+
